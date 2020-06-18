@@ -28,8 +28,26 @@ const movies = (req, res) => {
 	});
 }
 
+const randomApi = "https://randomuser.me/api/?results=100&inc=name,picture";
+
 const random = (req, res) => {
-	res.render('random', { title: req.flash('title') });
+	axios.get(randomApi)
+	.then(data => {
+		const listings = [];
+		for(listing of data.data.results) {
+			const entry = {
+				picture: listing.picture.large,
+				name: listing.name.first + ' ' + listing.name.last
+			};
+			listings.push(entry);
+		}
+		req.flash('info', listings);
+
+		res.render('random', { title: req.flash('title'), info: req.flash('info') });
+	})
+	.catch(err => {
+		return res.status(500).json({error: err});
+	});
 }
 
 module.exports = {

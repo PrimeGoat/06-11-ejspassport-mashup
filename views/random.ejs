@@ -11,14 +11,13 @@
 		<div class="randomApp full-width">
 			<% for(listing of info) { %>
 				<div class="randomListing">
-					<img src=<%= listing.image %> width=150>
+					<img src=<%= listing.picture %> width=150 class="clipped">
 					<div class="randomText">
-						<%= listing.username %>
+						<%= listing.name %>
 					</div>
 				</div><br>
 			<% } %>
 		</div>
 		<%- include('../partials/footer'); %>
 	</body>
-	<script src="./main.js"></script>
 </html>
