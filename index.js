@@ -1,26 +1,57 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+const session = require('express-session');
+const flash = require('connect-flash');
+require('dotenv').config();
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
-var app = express();
+// const indexRouter = require('./routes/index');
+// const usersRouter = require('./routes/users');
+const movieRoutes = require('./routes/movieRoutes');
+const randomRoutes = require('./routes/randomRoutes');
+const { random } = require('./controllers/thirdPartyController');
+
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
+app.use(morgan('dev'));
+app.use(cookieParser(process.env.SECRET));
+app.use(session({
+	resave: false,
+	saveUninitialized: false,
+	secret: process.env.SESSION_SECRET,
+	cookie: {
+		secure: false,
+		maxAge: 1000 * 60
+	}
+}));
+app.use(flash());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// Parent routes
+app.use('/movies', (req, res, next) => {
+  req.flash('title', 'Movies Now Playing');
+  next();
+});
+app.use('/movies', movieRoutes);
+
+app.use('/random', (req, res, next) => {
+  req.flash('title', 'Random Profiles');
+  next();
+});
+app.use('/random', randomRoutes);
+
+// app.use('/', indexRouter);
+// app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
